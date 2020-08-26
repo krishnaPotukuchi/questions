@@ -1,0 +1,1403 @@
+1. what happens if you set null to the reference in call by reference?
+A. Whenever a call by reference is made, a copy of the object is passed onto the new reference, any changes done will reflect onto the original reference. If this reference is made null, just that reference will be null, original reference will be unaltered.lis
+
+2. what does the end user see if finally is giving ArrayIndexoutofBound exception and a generic exception is caught in catch block?
+A. The end user will only see ArrayIndexOutOfBound Exception which is thrown from finally block. The exception thrown from catch block will not be visible to the user.
+
+3. If there is a sleep method invoked in thread, does the main program exit?
+A. The main program that spawns the thread will exit if a sleep is invoked in the thread. This will happen evendes if there is a join() method in the main program.
+
+4. How to stop a thread when required?
+A. The proper way to stop a running thread is to set a variable that the thread checks occasionally. When the thread detects that the variable is set, it should return from the run() method.
+
+MyThread thread = new MyThread();
+thread.start();
+// Do work...
+// Stop the thread
+thread.allDone = true;
+
+class MyThread extends Thread {
+    boolean allDone = false;
+
+    // This method is called when the thread runs
+    public void run() {
+        while (true) {
+            // Do work...
+            if (allDone) {
+                return;
+            }
+            // Do work...
+        }
+    }
+}
+
+5. what is difference between volatile and normal variable?
+A. A volatile variable is straight away stored in the Main memory and it is accessible to all the threads. This variable is shared between all the threads. A normal variable is never stored in main memory it is stored only in the Heap.
+
+6. why is String class final? How is String stored in java ?
+A. All the strings that are not created with new instance are stored in the string pool. In the string pool, the value of the string is checked before actually storing the string variable. if the value is same for 2 or more strings then the value is stored once and points to the same location by different references. 
+Also whenever we add a value to the string then the reference is made to point to the new value.
+String is widely used as parameter for many java classes, e.g. network connection, opening files, etc. Were String not immutable, a connection or file would be changed and lead to serious security threat.
+Security and String pool being primary reason of making String immutable.
+
+7. How to get best performance even after synchronization?
+A. The points to consider are using Strings(Use immutable variables which are faster than mutable one's), less complex code, use Synchronized blocks instead of using at method level, no loops, using synchronized collections like Hashtable, vector.
+
+8. When to use Abstract class, Interface? Whats the advantage of using Interface?
+A. Interface is a contract between base class and derived class it has control over classes. It is used for inheritance and we cant create a instance for an interface. Just we have to inherit it through classes. Abstract classes supports Implementation inheritance. It promotes reusability of code, but the subclass becomes tightly coupled with the super class. Care should be taken to make sure that the subclasses depend only on the behaviour of the super class not on the implementation. Interfaces supports Interface Inheritance.  This reduces the coupling and implementation dependencies of the system. In RMI and many advanced concepts, the interface is only given to the client which reduces the Network traffic and hides the implementation.
+PS: It’s almost impossible to add a new method on a published interface, it’s better to use abstract class, when evolution is concern. Abstract class in Java evolves better than interface. This adds strength to the OOAD principle -"Code should be open for Extension but closed for Modification".
+
+9. How to implement singleton? is Synchronized to be used in singleton? How to ensure that only one instance is maintained if more than once class calls the singleton? How to write a thread-safe singleton ?
+A. Singleton is implemented by making the constructor private and returning the instance of a class by a static method which checks null before returning. Using synchronization block can ensure a thread-safe mechanism of the singleton. 
+Below code ensures singleton in a thread-safe environment:
+
+  public static Singleton getInstance() {
+    if (instance == null) {
+      synchronized(Singleton.class) {
+        if (instance == null) {
+           instance = new Singleton();
+       }
+      }
+    }
+    return instance;
+  }
+NOTE: The 2nd check for if (instance == null) is needed to avoid making another unnecessary construct.
+
+10. Explain about 'out' in System.out.println? Why is System class static? What is the design consideration while using the static variable?
+A. out is a variable of class PrintStream. System is the class used by JVM for all I/O operations. Since only one resource is available its always better to use that class as a static. The design consideration should be such that if only one resource is available its better to declare it static.
+
+11. How do you design our own HTTP server?
+A. The main considerations are like having a disc space, enabling TCP/IP Ports, configuring the logs/data/deployments on the disc space.
+Use java.net.* for accessing HTTP and java.io for reading the bytes. These are few points on top of my head.
+
+12. How to translate the TCP packets to HTTP in core java?
+A. The API java.io.* is used for reading the bytes. java.net.* is used for HTTP.
+
+13. How to design our own caching system ?
+A. Suggestion:May use some light, fast database for the purpose of storing/retrieving the objects.
+
+14. Why inheritance is one-sided(Uni-directional) in java? What is the design constraint in having the down casting not making implicit in inheritance?
+A. In java the up-casting is implicit as the subclass is also a superclass. The down-casting has to be made explicitly and the JVM will check for its legality.(See Q 51).
+
+15. Explain Abstract factory, adapter patterns?
+A. If you have a super class and 'n' no of subclasses, and based on the data provided if you want to return any one of the subclasses a Factory pattern is used. Abstract Factory is one level above Factory pattern as it returns one of the Factory. Adapter pattern helps two incompatiable interfaces to work together.
+
+Factory method design pattern client is completely decoupled with object creation code, which enforces Encapsulation and result is loosely coupled and highly cohesive system. Used to decouple clients from creating object they need. Any change(eg a new product) from Factory requires almost no change in existing clients.
+
+16. How is webservice different than RMI ?
+A. Webservice is platform, language independent, while RMI is not.
+
+17. Why should we use serialization?
+A. Serialization is used to write the state of the object to byte stream. This is essential because a java object is written to the byte stream.
+
+18. why should we override equals(), hashcode() method? What is the significance of using the hashcode() method?
+A. equals() method checks the equality of the objects that is passed with the current(this) object. A hashcode() method simply returns an integer value which is changed(translated) as Memory address by JVM. The object is stored with the hashcode generated and when retriving the object the same hashcode is only checked. This will improve the speed of retreival.
+if 2 objects are equal then they should have same hashcode and if 2 objects are not equal then they may or may not have same hash code(contract).
+
+19. What is the mechanism of storing the objects in HashMap ?
+A. Internally the Map stores objects as an array of arrays. The index for the first array is the hashcode() value of the key. This locates the second array which is searched linearly by using equals() to determine if the object is found. 
+
+20 What will happen if two different objects have same hashcode? How will you retrieve Value object if two Keys will have same hashcode?
+A. When we try to insert two objects with same hashcode, HashMap does not replace the first object with second object if their equals method does not evaluate to true. In that case, an array is created and both the key-value pair objects are stored in that array against the same hashcode. In case of fetch, both hashcode and equals method are invoked to fetch the corresponding value object. If only equals() method is overridden and hashCode() method is not overridden, then all the elements will be stored irrespective of the equals() method returns true, but while retrival it returns null.
+
+21. What is ConcurrencyHashMap ?
+A. All operations are thread-safe, retrieval operations do not entail locking, and there is not any support for locking the entire table in a way that prevents all access.
+
+22. When to use ArrayList,LinkedList? ArrayList Vs LinkedList?
+A. ArrayList is used for fast retreival, LinkedList is used when the requirement involves more insert, updates and less of retreival.
+
+23. What is the order of ordinality of retreiving the object from TreeMap with HashMap ?
+A. TreeMap has an usage time of log(n) for get,out,remove and containsKey.
+
+24. which collection is used for searching the object ?
+A. A TreeMap can be used for searching the object.
+
+25. How to ensure that the collection(List/Set) as immutable?
+A. By using Collections.unmodifiableList(list); in the getter method.
+
+26. How to make HashMap, TreeMap synchronized ?
+A. Use Collections.synchronizedMap(map); 
+
+27. When to use comparator, when to use comparable ?
+A. Comparator.compare(Object o1,Object o2);
+   Comparable.compareTo(Object o1);
+   Comparator is used when object is known.
+
+28. What is the use of Abstraction and Encapsulation?
+A. Abstraction lets you focus on what the object does instead of how it does it. Encapsulation means hiding the internal details or mechanics of how an object does something. Abstraction can also be defined as the process of identifying only the required characteristics of an object ignoring the irrelevant details.  Abstraction is achieved by interfaces and abstract classes. We can achieve 100% abstraction using interfaces.
+
+29. why should we use static always while using 'final' for variables?
+A. Since final is a constant in java, the value doesnot change for that variable so it is enough to have one copy of that variable. Hence its recommended to use static.
+
+30. What are the components inside the JVM ?
+A. JVM contails Memory manager(Garbage collection), Bytecode verifier, Interpretor(JIT).
+
+31. What does JRE Contain ?
+A.  Java APIs along with JVM is JRE(Java Runtime Environment).
+
+32. What/How does a scheduler works for GC ?
+A.  Garbage collection thread(s) normally run(s) at lower priority. it runs as the daemon thread.
+
+33. What/How does serialization work ?
+A.  Primary purpose of java serialization is to write an object into a stream, so that it can be transported through a network and that object can be rebuilt again.
+	(OR)
+
+Java provides a mechanism, called object serialization where an object can be represented as a sequence of bytes that includes the object's data as well as information about the object's type and the types of data stored in the object. After a serialized object has been written into a file, it can be read from the file and deserialized that is, the type information and bytes that represent the object and its data can be used to recreate the object in memory. Most impressive is that the entire process is JVM independent, meaning an object can be serialized on one platform and deserialized on an entirely different platform. Classes ObjectInputStream and ObjectOutputStream are high-level streams that contain the methods for serializing and deserializing an object.
+
+34. What is serialVersionUID? What would happen if you don't define this?
+A. SerialVersionUID is an ID which is stamped on object when it get serialized usually hashcode of object, you can use tool serialver to see serialVersionUID of a serialized object . SerialVersionUID is used for version control of object. you can specify serialVersionUID in your class file also.  Consequence of not specifying  serialVersionUID is that when you add or modify any field in class then already serialized class will not be able to recover because serialVersionUID generated for new class and for old serialized object will be different. Java serialization process relies on correct serialVersionUID for recovering state of serialized object and throws java.io.InvalidClassException in case of serialVersionUID mismatch.
+
+35. How to access environmental variables from java?
+A.  System.getEnv("path");// This is currently deprecated. Use System.getProperty("java.class.path");
+
+36. How to communicate between the jobs? If one job fails how to communicate the error to other jobs to stop further execution of jobs ?
+A. Everytime you run a command in a script, You can use '$?' to find out the exit status of command. if it is zero the command executed successfully else the command failed.
+
+37. Why is the main thread in java is declared static?
+A. If main method were not declared static than JVM has to create instance of main Class and since constructor can be overloaded and can have arguments there would not be any certain and consistent way for JVM to find main method in Java.  If that class lacks a no-arg constructor, java would have no way to do that.
+
+when you run java.exe (or javaw.exe on Windows), what is really happening is a couple of Java Native Interface (JNI) calls. These calls load the DLL that is really the JVM (that's right - java.exe is NOT the JVM). JNI is the tool that we use when we have to bridge between the virtual machine world, and the world of C, C++, etc... The reverse is also true - it is not possible (at least to my knowledge) to actually get a JVM running without using JNI.
+
+Basically, java.exe is a super simple C application that parses the command line, creates a new String array in the JVM to hold those arguments, parses out the class name that you specified as containing main(), uses JNI calls to find the main() method itself, then invokes the main() method, passing in the newly created string array as a parameter. This is very, very much like what you do when you use reflection from Java - it just uses confusingly named native function calls instead.
+
+38. Class Lock Vs. Object Lock
+A. These two locks are unrelated. One is for class monitor. For a class (static) method, the lock associated with the Class object for the method's class is used. For an instance method, the lock associated with this (the object for which the method was invoked) is used. 
+synchronized(Foo.class)
+Synchronized(f)// Foo f = new Foo();
+
+39. What are different types of class loaders in JVM ?
+A. (1) Bootstrap(loads the runtime classes in rt.jar(contains all java.*.*), internationalization classes) 2.Java extension class loader(classes in JAR files in the lib/ext directory of the JRE) 3.AppClassLoader(loads all of the classes kept in the path corresponding to the java.class.path system property).
+
+40. When is a class loaded in JVM ?
+A. Once a class is loaded into a JVM, the same class (I repeat, the same  class) will not be loaded again. when the 'new' bytecode is executed (for example, FooClass  f = new FooClass();) and when the bytecodes make a static reference to a class (for example, System.out). 
+
+41. Differnce between forName, reflection, new operator ?
+A.  If you have to load classes dynamically from a remote source, you know their names, but cant import at compile time. Then forName is used. It uses reflection API to lookup the class at runtime. It can call only default constructor. new opertor is faster. The only use of that Class.forName() call is to ensure the driver is registered. The Class.forName(JDBC_DRIVER) call will register your JDBC driver in the DriverManager, so you can address it by url, such as "jdbc:odbc:Database" and so on. Creation of object can be done by new operator, class.forName(), clone, creational design patterns, serialization.
+
+42. How to ensure singleton in a clustered environment ?
+A. There are tools like Terracota, oracle coherence that provide an in memory replication of objects across JVMs in effect providing a singleton view or making use of any cluster-aware cache providers like Swarmcache or JBoss TreeCache should work as cache entries are singletons and clustering built in.
+
+43. Can we catch Error instead of Exception?
+A. Yes. we can catch Error in catch block. But, an Error indicates serious problems that are not expected to catch it.
+
+44. SortedSet Vs Set
+A. Sortedset is a Set  having all the operations of a set, besides that there are few more operations supported by SortedSet. (subSet, headSet, tailSet, first, last elements,method to return the comparator used by the set).
+
+45. HashSet Vs TreeSet
+A. HashSet offers constant time performance O(1) for the basic operations (add, remove, contains(checking presence) and size).For finding(search) objects it takes O(n). TreeSet guarantees log(n) time cost for the basic operations (add, remove and contains).
+
+46. Why is inheritance uni-directional ?
+A. Widening reference conversions(Upcasting) do not require any runtime checks and never result in an exception during execution. For narrowing reference conversions(downcasting) require a runtime check and can throw a ClassCastException if the conversion is not legal.
+
+47. UML Notations:
+Association: Association is a relationship between two objects. (Ex: one-to-one, one-to-many, many-to-one, many-to-many association between objects)
+Aggregation: When an object ‘has-a’ another object, then you have got an aggregation between them. 
+Composition: When an object contains the other object, if the contained object cannot exist without the existence of container object, then it is called composition.
+Generalization: Generalization uses a “is-a” relationship from a specialization to the generalization class.(Inheritance - 'extends')
+Realization: The relationship between the interface and the implementing class.('implements')
+Dependency: Change in structure or behaviour of a class affects the other related class, then there is a dependency between those two classes.
+
+48. Error Vs Exception
+A. An Error "indicates serious problems that a reasonable application should not try to catch." 
+
+    An Exception "indicates conditions that a reasonable application might want to catch."
+Error along with RuntimeException & their subclasses are unchecked exceptions
+
+49. Enumeration Vs Iterator
+A. Iterator has remove() method. The method names in iterator are simple. Enumeration acts as Read-only interface, because it has the methods only to traverse and fetch the objects, where as by using Iterator we can manipulate the objects like adding and removing the objects from collection e.g. Arraylist. Enumeration is synchronized. 
+
+50. Iterator Vs ListIterator ?
+A. Iterator can traverse List, Set. ListIterator traverses only List. Iterator can retrieve objects in forward direction only. List Iterator can retrieve forward,  backward, index based.
+
+51. Over-Riding 
+	(a)The over-riding method should only return the subclass or the same class, but never the super class.
+	(b) The over-riding method should not throw Exception with a wider scope. It doesn't matter even if doesn't throw.
+	(c)The Over-riding method should have wider/or same access specifier.
+
+52. HTTP Status Codes:
+1xx - Informational. This class of status code indicates a provisional response, consisting only of the Status-Line and optional headers, and is terminated by an empty line.
+2xx - Successful. These codes indicate success. The body section if present is the object returned by the request.  
+3xx - Redirection. Action to be taken by the client in order to fulfill the request.
+4xx - Client Error.Intended for cases in which the client seems to have erred.
+5xx - Server Error. The cases in which the server is aware that the server has erred.
+
+53. EJB 2.X Vs 3.0
+A. EJB 3.0 uses the annotations meta data facility. Home interface is removed. The Business interface doesnot extend EJBObject, is a plain java interface. The bean implementation class is a POJO, it does not need to implement EnterpriseBean.  Deployment desciptor is not needed. One can deploy session beans without ejb-jar.xml descriptors, if one desires to use can use the ejb-jar.xml descriptor.
+
+54. Marshalling/Unmarshalling
+A.  "Marshalling" refers to the process of converting the data or the objects into a byte-stream, and "Unmarshalling" is the reverse process of converting the byte-stream beack to their original data or object. The conversion is achieved through "serialization".
+
+The purpose of the "marshalling/unmarshalling" process is to transfer data between the RMI system. 
+
+55. Shallow Vs Deep Cloning
+A.  A Deep copy occurs when an object is copied along with the objects to which it refers. A shallow copy is,  If any of the fields of the object are references to other objects, just the reference addresses are copied i.e., only the memory address is copied. 
+
+56. Observable , Observer
+A. 1) Observable is a Class and Observer is an Interface
+ 2) Observable class maintain a list of observers
+ 3) When an Observable object is updated it invokes the update() method of each of its observers to notify that, it is changed.
+
+57. How to know that objects added to a set are duplicate ?
+A. The method add() returns a boolean. If it returns false, the object is not added to the set.
+
+58. why are collections not thread safe by default ?
+A. They are assumed to be run on multi threaded environment, due to which it affects the performance. 
+
+59.  If any runtime exception is thrown in a stateless session bean, what will happen ?
+A. The container simply discards the instance that has thrown the exception. The container will delegete the future calls to different EJB(bean) instance.
+
+60. How to maintain singleton state on serialized object ?
+A. If you serialize a singleton and de-serialize it, a new copy of the object is created in memory. If we want to retain the same object we should implement the method readResolve() and return the same object. 
+	ANY-ACCESS-MODIFIER Object readResolve();
+This method is called only at the time of deserialization.
+
+61. Can we serialize a static variable ?
+A. Static, transient variables cannot be serialized.
+
+62. Junit - DB dependant code and unit testing
+A. If you are involved a db, you are no longer unit testing. You have entered integreation or functional testing. 
+a) The connection method should definitely be seperate from data fetch. Better to use a pool and you should not try to test the connection. Unit/Integration/Functional tests should NEVER connect to production db. 
+b) For testing Data access code, its functional testing and it requires framework support. Need seperate testing DB, and create schema on the fly during testing, insert static data into table, and return db to known clean state after each tests.
+
+63. where are static variables stored in java ?
+A. Static methods (in fact all methods) as well as static variables are stored in the PermGen section of the heap, since they are part of the reflection data (class related data, not instance related).
+
+64. ConcurrentHashMap Vs Hashtable
+A. When you read from a ConcurrentHashMap using get(), there are no locks, contrary to the Hashtable for which all operations are simply synchronized.
+
+65. Weak Reference, soft Reference
+A. Weak reference is a reference that is not strong enough to force an object to remain in memory. A soft reference is exactly like a weak reference, except that it is less eager to throw away the object to which it refers. Softly reachable will generally stick around for a while.
+
+66. Use of final in java ( final List list = new ArrayList();)
+A.  final is only about the reference itself, and not about the contents of the referenced object. A final variable can only be initialized once.
+
+67. java.sql.Date Vs java.util.Date
+A. The only time to use java.sql.Date is in a PreparedStatement.setDate. Otherwise, use java.util.Date. It's telling that ResultSet.getDate returns a java.sql.Date but it can be assigned directly to a java.util.Date.
+
+68. Nested Class Vs Inner Class
+A. Nested classes are divided into two categories: static and non-static. Nested classes that are declared static are simply called static nested classes. Non-static nested classes are called inner classes.
+
+69. How to run threads in an optimized way ?
+A. Executors framework (java.util.concurrent.Executor), released with the JDK 5 in package java.util.concurrent is used to run the Runnable objects without creating new threads every time and mostly re-using the already created threads.
+
+		ExecutorService service = Executors.newFixedThreadPool(10);
+		for(int i=0;i<100;i++){
+			service.submit(new Task(i));
+		}
+
+70. How to catch Exception from a thread?
+A. Use Thread.setUncaughtExceptionHandler() and override the uncaughtException method in the main thread.  
+
+	Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+	    public void uncaughtException(Thread th, Throwable ex) {
+        	System.out.println("Uncaught exception: " + ex);
+    		}
+	};
+
+	Thread t = new Thread(new Runnable());
+	t.setUncaughtExceptionHandler(h);
+	t.start();
+
+71.  where are the primitive data types stored ?
+A. Primitives defined locally would be on the stack. However if a primitive were defined as part of an instance of an object, that primitive would be on the heap.
+All local variables (including method arguments) go on the stack; objects and all their fields are stored in the heap. Variables are always primitives or references to objects.
+
+72. Session Tracking Without Cookies ?
+A. request.isRequestedSessionIdFromCookie( ) is true if cookies are enabled. If disabled, the developer has to write code checking the above method and setting it to the URL.
+
+73. what is the JNDI name for calling a session bean in another war ?
+A. The JNDI name will be as "java:global/myApp/ExampleRemote".
+
+74. substring in java ? 
+A. In the code java.lang.String class, you will see that this constructor trim the array, if it’s bigger than String itself. substring(beginIndex), substring(beginIndex, endIndex).  
+
+75. Datastructures in java
+A. Data structures are used for saving several elements. Ex: Stack, Hashtable, Enumeration, vector, Dictionary, properties, Bitset.
+
+76. How to make a class immutable ?
+A. (1) create final class (2) set values of variables using constructor only (3) Make the properties as final and private (4) Dont provide any setters for the properties.
+
+77.  
+Can we have multiple consumers in a JMS Queue ?
+A.  JMS provides should support load balancing of requests on a queue across multiple consumers. Thing to be careful of is ordering; Using multiple consumers per queue typically breaks ordering.
+
+78. How many ways are there to accept input in java ?
+A. Scanner sc = new Scanner(System.in); System.out.println(sc.nextLine());
+   Console c = new Console();  System.out.println(c.readLine());
+   input stream. BufferedReader br=new BufferedReader(new InputStreamReader(System.in)); System.out.println(br.readLine());
+
+79. what is cohesion ?
+A. Cohesion is when you have one class focus on one objective. A class should be responsible for itself, should do one thing and as far as possible do everything for that one thing.
+
+80. NIO vs IO	
+A. Java IO is stream oriented means that you read one or more bytes at a time, from a stream. Java NIO's buffer oriented approach, Data is read into a buffer from which it is later processed. You can move forth and back in the buffer as you need to. 
+
+81. Reflection in java
+A. Reflection is the ability to "reflect" on the structure of your program. Reflection is to look at the objects and classes you have and programmatically get back information on the methods, fields, and interfaces they implement.
+
+82. How to resolve a dead lock ?
+A. The real reason for deadlock is not multiple threads but the way they access lock, if you provide an ordered access then problem will be resolved.
+
+83. enum Vs static final 
+A. Enums are lists of constants. It can take only one out of a small set of possible values(type-safe). MyEnum.values() returns an array of MyEnum’s values. An enum specifies a list of constant values assigned to a type. can be used in switch/case.
+
+84. ArrayList vs Vector
+A. Vector is synchronized. Vector method names are more verbose whereas List is simple(add() for list, addElement() for vector). Vector has Enumeration to iterate over the stored objects. Vector has 4 types of constructors, they are default, with intial capacity, with initial capactiy and incremental value(not available with list), with another collection.
+
+85. How to add log4j statements to database ?
+A. # Define the root logger with file appender
+log4j.rootLogger = DEBUG, sql
+log4j.appender.sql=org.apache.log4j.jdbc.JDBCAppender
+log4j.appender.sql.URL=jdbc:mysql://localhost:3306/test
+log4j.appender.sql.driver=com.mysql.jdbc.Driver
+log4j.appender.sql.user=root
+log4j.appender.sql.password=root
+log4j.appender.sql.sql=INSERT INTO LOGS VALUES ('%x', now() ,'%C','%p','%m')
+log4j.appender.sql.layout=org.apache.log4j.PatternLayout
+
+86. Inheritence(is-a) Vs Compostion(has-a)
+A. Inheritance is defined at compile time. It breaks encapsulation. tight coupling, excessive reusing by subclassing can make stack very deep and confusing.
+Composition is defined at runtime, as object acquiring references to other objects. These objects can never reach protected data(no encapsulation break) and forced to respect each others interface. 
+ 
+87. GC algorithms
+A. (i) Serial GC: Basic GC that runs in single thread. 
+   (ii) Parallel GC: A thread that performs GC along with application execution, does not wait for old generation to be full. It stops the world during Mark/re-mark.
+   (iii) Concurrent GC: Uses multiple CPUs to perform GC. Multiple threads doing Mark/Sweep etc. Doesn't start until heap is full. Stops the world when it runs.
+     https://www.youtube.com/watch?v=UnaNQgzw4zY
+
+88. custom annotation
+A. Create an interface with @interface.
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface  MySampleAnno {
+	String name();
+	String age();
+}
+
+@MySampleAnno(name="krishna", age="33")
+
+89. Servlet Exception and Error handling 
+A. Servlet API provides support for custom Exception and Error Handler servlets that we can configure in deployment descriptor, the whole purpose of these servlets are to handle the Exception or Error raised by application and send HTML response that is useful for the user.
+<error-page> 
+    <exception-type>javax.servlet.ServletException</exception-type>
+    <location>/AppExceptionHandler</location>
+</error-page>
+
+90. Why custom exceptions ? 
+A. Gives the ability to add custom data to your exceptions.  The implementation details often should not be made visible to the public method’s caller and also these exceptions might not be present in the public method’s contract interface. Therefore we can wrap the lower-level exception in a higher level exception that is present in the public method’s contract interface.
+
+91. Final object Vs Immutable Class
+A. Immutable object does not allow to set the 'value' whereas Final class(Object) doesnot allow to set the 'reference'.
+
+92. 	Generations in JVM Heap.
+The Heap is divided into young and old generations as follows :
+Young Generation : It is place where lived for short period and divided into two spaces:
+Eden Space : When object created using new keyword memory allocated on this space.
+Survivor Space : This is the pool which contains objects which have survived after java garbage collection from Eden space.
+Old Generation : This pool is basically contain tenured and virtual (reserved) space and will be holding those objects which survived after garbage collection from Young Generation.
+Tenured Space: This memory pool contains objects which survived after multiple garbage collection means object which survived after garbage collection from Survivor space.
+Permanent Generation : This memory pool as name also says contain permanent class metadata and descriptors information so PermGen space always reserved for classes and those that is tied to the classes for example static members.
+
+93. Wait vs sleep
+A. The major difference is to wait to release the lock or monitor while sleep doesn't release any lock or monitor while waiting. Wait is used for inter-thread communication while sleep is used to introduce pause on execution. 
+
+94. What is Countdown Latch ?
+A. CountDownLatch in Java is a type of synchronizer which allows one Thread to wait for one or more  Threads before it starts processing.
+CountDownLatch works on latch principle, thread will wait until gate is open. One thread waits for n number of threads specified while creating CountDownLatch.
+Any thread, usually main thread of application, which calls CountDownLatch.await() will wait until count reaches zero or it's interrupted by another Thread. All other threads are required to do count down by calling CountDownLatch.countDown() once they are completed or ready to the job. as soon as count reaches zero, the Thread awaiting starts running.
+
+Here the count is get decremented by CountDownLatch.countDown() method.
+
+The Thread which calls the await() method will wait until the initial count reaches to zero.
+
+To make count zero other threads need to call the countDown() method. Once the count become zero the thread which invoked the await() method will resume (start its execution).
+
+The disadvantage of CountDownLatch is that it's not reusable: once the count become zero it is no longer usable.
+
+95. ThreadLocal in java
+A. Without using synchronization if you want to provide thread safety to the object use Thread Local. It is called Thread scope.
+
+96. Runnable vs Executor(Callable/Future)
+A. The callable interface was introduced in concurrency package, which is similar to the Runnable interface, but it can return any object, and is able to throw an Exception. The Executor Framework offers a submit() method to execute Callable implementations in a thread pool. Callable is same as Runnable but it can return any type of Object if we want to get a result or status from work (callable).
+
+Java Callable tasks return java.util.concurrent.Future objects. Java Future provides a cancel() method to cancel the associated Callable task. This is an overloaded version of the get() method, where we can specify the time to wait for the result. It’s useful to avoid a current thread getting blocked for a longer time.
+
+97. Callable vs Runnable
+A. Callable needs to implement call() method while a Runnable needs to implement run() method.
+   Callable can return a value but a Runnable cannot.
+   Callable can throw checked exception but a Runnable cannot.
+   Callable can be used with ExecutorService#invokeXXX(Collection<? extends Callable<T>> tasks) methods but a Runnable cannot be.
+   public interface Runnable {    void run(); }
+   public interface Callable<V> {  V call() throws Exception; }
+   
+   Callable<Long> worker = new MyCallable();
+   Future<Long> submit = executor.submit(worker);
+
+98. Threadpool
+A. A Thread pool can be described as a collection of Runnable objects. Thread pools manage a pool of worker threads. The thread pools contains a work queue which holds tasks waiting to get executed. Thread Pools are useful when you need to limit the number of threads running in your application at the same time.
+
+Internally the tasks are inserted into a Blocking Queue which the threads in the pool are dequeuing from. When a new task is inserted into the queue one of the idle threads will dequeue it successfully and execute it. The rest of the idle threads in the pool will be blocked waiting to dequeue tasks.
+
+99.  CoundownLatch vs CyclicBarrier
+A. In the CoundownLatch, the countdown value could not be reset, that can happen in the case of CyclicBarrier.
+   CountDownLatch:  By using a CountDownLatch we can cause a thread to block until other threads have completed a given task.
+   CyclicBarrier:  A synchronizer that allows a set of threads to wait for each other to reach a common execution point, also called a barrier.
+
+100. Which overloaded method will be called if i am passing null as argument?   
+A. A subclass is always more specific than its Super class. Object is more generalised class which every class extends to become a more specific one.
+   void m1(Object o){}
+   void m1(String s){} 
+   if you call new Test().m1(null);
+   It will call the method with 'String' argument.
+
+101. Garbage Collection GC involves the following
+A.  Mark:- Starts from the root node of the application and walks the object graph, marks objects that reachable as live.
+    Sweep:- Delete unreachable objects
+    Compacting:- Compact the memory by moving around the objects and making the allocation contigious than fragmented.
+
+102. Pass by reference Vs Pass by value.
+A. Java is always pass-by-value. Unfortunately, they decided to call the location of an object a "reference". When we pass the value of an object, we are passing the reference to it.
+ 
+103. Semaphore
+A. Semaphores are often used to restrict the number of threads than can access some (physical or logical) resource.
+   A counting semaphore. Conceptually, a semaphore maintains a set of permits. Each acquire blocks if necessary until a permit is available, and then takes it. Each release adds a permit, potentially releasing a blocking acquirer. However, no actual permit objects are used; the Semaphore just keeps a count of the number available and acts accordingly. 
+
+104. Where is the session stored in server ?
+A.  Most containers will give you multiple choices to pick on how the HttpSession objects can be serialized (Memory, Disk, Database). 
+    Most containers will also give you a way to customized and create our own way to serialize the HttpSession.
+
+105. Validate JSON Object with JSON Schema
+A. 
+    JSONObject jsonSchema = new JSONObject(new JSONTokener(JSONSchemaTest.class.getResourceAsStream("/schema.json")));
+    JSONObject jsonSubject = new JSONObject(new JSONTokener(JSONSchemaTest.class.getResourceAsStream("/product_invalid.json")));
+    Schema schema = SchemaLoader.load(jsonSchema);
+    schema.validate(jsonSubject);
+
+106. SOLID principles.
+A.   S = Single Responsibility Principle (A class should have only one reason to change)
+     O = Open Closed Principle (Software entities must be open for extension and closed for modification)
+     L = Liskov Substitution (Derived types must be substitutable for their base types)
+     I = Interface Segregation Principle (Instead of creating one big interface break down to smaller interfaces)
+     D = Dependency Inversion Principle (High level modules should not depend on low level modules, both should depend on abstractions)
+
+107. Sorting with custom objects
+A. The custom class should implement the comparable interface or a comparator. If not specified and when you try to add a custom object, it will throw a ClassCastException. TreeSet also throws ClassCastException if comparator is not passed into the constructor or without implementing the comparable interface.
+
+108. JSON object mapper using Jackson.
+A.   	The 'readValue' API of the ObjectMapper is used to parse or deserialize JSON content into a Java object. The 'writeValue' API can be used to serialize any Java 	object as JSON output.
+
+	ObjectMapper objectMapper = new ObjectMapper();
+	Car car = new Car("yellow", "renault");
+	objectMapper.writeValue(new File("target/car.json"), car);
+	//Output: {"color":"yellow","type":"renault"}
+	
+	List<Car> listCar = objectMapper.readValue(json, new TypeReference<List<Car>>(){});
+	Map<String, Object> map = objectMapper.readValue(json, new TypeReference<Map<String,Object>>(){});
+
+	ObjectMapper objectMapper = new ObjectMapper();
+	Car car = new Car("yellow", "renault");
+	objectMapper.writeValue(new File("target/car.json"), car);//returns json
+
+	String carAsString    = objectMapper.writeValueAsString(car);
+	byte[] carAsByteArray = objectMapper.writeValueAsBytes(car);
+	
+
+109. Mockito Servlets
+A.
+    public class YourServletTest {
+
+    private YourServlet servlet;
+    private HttpServletRequestMimic request;
+    private HttpServletResponseMimic response;
+
+    @Before
+    public void setUp() throws ServletException {
+        servlet = new YourServlet();
+        servlet.init(new ServletConfigMimic());
+        request = new HttpServletRequestMimic();
+        response = new HttpServletResponseMimic();
+    }
+
+    @Test
+    public void testYourServletDoPostWithExampleArguments()
+            throws ServletException, IOException {
+
+        RequestParameters parameters
+            = request.getMimicState().getRequestParameters();
+        parameters.set("username", "mike");
+        parameters.set("password", "xyz#zyx");
+        parameters.set("name", "Mike");
+
+        // Run the "doPost".
+        servlet.doPost(request, response);
+
+        // Check the response's Content-Type, Cache-Control header and body content.
+        assertEquals("text/html; charset=ISO-8859-1", response.getMimicState().getContentType());
+        assertArrayEquals(new String[] { "no-cache" }, response.getMimicState().getHeaders().getValues("Cache-Control"));
+        assertEquals("...expected result from dataManager.register...", response.getMimicState().getBodyContentAsString());
+      }
+     }
+
+110. Where are the object references stored ?
+A. In Heap
+
+111. When is a static variables gets garbage collected ?
+A. When the class loader gets unloaded.
+
+112. Executor execute vs submit
+A.  execute simply starts the task without any further ado, whereas submit returns a Future object to manage the task.
+
+113. List complexities
+A.  ArrayList - add, get O(1). remove O(n)
+    LinkedList- add, remove O(1), get O(n)
+
+XML:
+----
+
+1. targetNameSpace in xml schema
+A. Within a schema document, you declare elements and attributes that will appear in instances. What namespace are they declared to be in? This is what targetNamespace is for.
+
+Schemas: targetNamespace="http://localhost:8080/scribble/xml/Person"   targetNamespace="http://localhost:8080/scribble/xml/Vehicle"
+Instance: xmlns:p="http://localhost:8080/scribble/xml/Person"   xmlns:v="http://localhost:8080/scribble/xml/Vehicle
+
+2. XPath 
+A. XPath provides syntax to define/select part of an XML document. XPath Expression is a query language to select part of the XML document bsed on the query String. Using XPath Expressions, we can find nodes in any xml document satisfying the query string.
+ XPathExpression expr = xpath.compile("/Employees/Employee[gender='Female']/name/text()");
+
+3. Namespace in XML
+A. XML Namespaces provide a method to avoid element name conflicts. The purpose is to give the namespace a unique name. However, often companies use the namespace as a pointer to a web page containing namespace information.
+
+4. JSON to XML, XML to ZIP File
+A. JSONObject json = new JSONObject(str); //JSON to XML
+   String xml = XML.toString(json)  //changed to XML
+
+   ZipOutputStream out = new ZipOutputStream(new FileOutputStream(source)); // source is xml file
+   JSONObject xmlJSONObj = XML.toJSONObject(TEST_XML_STRING); // xml to JSON
+
+5. Validate XML(SAX) Object with schema
+A.   
+    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    Schema schema = factory.newSchema(new File(xsdPath));
+    Validator validator = schema.newValidator();
+    validator.validate(new StreamSource(new File(xmlPath)));
+
+6. Schema(Complex types, Enumerations, Restrictions)
+A. 
+      <xs:element name="employee">
+ 	 <xs:complexType>
+	    <xs:sequence>
+	      <xs:element name="firstname" type="xs:string"/>
+	      <xs:element name="lastname" type="xs:string"/>
+	    </xs:sequence>
+	</xs:complexType>
+      </xs:element>
+
+Restrictions are used to define acceptable values for XML elements or attributes. 
+	<xs:element name="car">
+  	  <xs:simpleType>
+    	   <xs:restriction base="xs:string">
+     		<xs:enumeration value="Audi"/>
+      		<xs:enumeration value="Golf"/>
+    		<xs:enumeration value="BMW"/>
+   	   </xs:restriction>
+  	  </xs:simpleType>
+	</xs:element>
+
+	<xs:element name="initials">
+  	  <xs:simpleType>
+	    <xs:restriction base="xs:string">
+      		<xs:pattern value="[a-zA-Z][a-zA-Z][a-zA-Z]"/>
+	    (OR)<xs:pattern value="([a-z])*"/>
+    	   </xs:restriction>
+           </xs:simpleType>
+	</xs:element>
+
+Attributes:
+	<xs:element name="Order">
+    	  <xs:complexType>
+             <xs:attribute name="OrderID" type="xs:int" />
+	  </xs:complexType>
+	</xs:element>
+
+	Ex: <Order OrderID="6" />
+
+7. JaxB Vs DOM
+A. The Java DOM and SAX parsing APIs are lower-level APIs to parse XML documents, while JAXB (Java API for XML Binding) is a higher-level API for converting XML elements and attributes to a Java object hierarchy (and vice versa). 
+
+
+SQL/PLSQL:
+-----------
+
+1. Function Vs Procedure in Oracle.
+A.   (1) A function always returns a value using the return statement while a procedure may return one or more values through parameters or may not return at all. 
+     (2) Functions can be used in typical SQL statements like SELECT, INSERT, UPDATE, DELETE, MERGE, while procedures can't.
+     (3) Functions are normally used for computations where as procedures are normally used for executing business logic.
+
+2. Delete Vs Truncate
+A. Delete is a DML command, we can have WHERE conditions, rollback is possible, triggers get fired on execution. Truncate is DDL command, faster, removes records permanently, triggers does not get fired and all rows gets removed.
+
+3. SQL for giving Rank based on total(at class level)(remove a.class=b.class for school level)
+mysql> select a.name, a.class, a.total, count(b.total) Rank from student_rank a, student_rank b where (a.total<b.total and a.class=b.class) OR(a.total=b.total AND a.name=b.name) group by a.name, a.class  order by a.class,b.total DESC,a.total DESC;
+
+4. Finding Nth highest in a table(nth high salary in employee table)
+A.  select * from employee a where N-1=(select count(distinct(b.sal)) from employee b where a.sal<b.sal);
+
+5. SQL QUERIES
+A.	(a) QUery to retrieve the name, manager name from emp table; emp table contains e mp_id, emp_name, mgr_id.
+	select a.emp_id, a.emp_name name, b.emp_name mgr_name from emp a, emp b where b.emp_id=a.mgr_id;
+
+	(b) Query to retrieve the count of employees for a department from emp, dept tables.	
+	 select b.dname name, count(a.empid) total from emp a, DEPT b where a.deptno=b.deptno group by b.dname
+
+6. SQL query to retrieve even/odd data
+A.  select * from (select empno, ename, sal, rownum rn from emp order by empno) where  mod (rn, 2) = 0; // for odd, mod(rn, 2) <> 0
+
+7. How to identify duplicates using SQL
+A. select empid from empnew group by empid having COUNT(*)>1
+
+8. Statement Vs Prepared Statement
+A. Statement is static, prepared is a dynamic. If you don't use a prepared statement, the database server will have to parse, and compute an execution plan for the statement each time you run it. If you need to run the same statement multiple times (with different parameters) then its worth preparing the statement once and reusing that prepared statement. ie., SQL will validate the query only once, whereas if you just use a statement it will validate the query each time.
+Prepared statements will protect from SQL injections.
+
+9. Find top 5 departments having highest salary 
+A.  Select * From (SELECT A.*, (SELECT COUNT(DISTINCT(B.salary)) FROM Employee B WHERE B.salary >= A.salary and  A.departmentID=B.departmentID) as Rank FROM  Employee A) Emp  Where Emp.Rank <=5
+
+Design Patterns:
+---------------
+
+1. Design Patterns
+a) Factory Pattern:  Best way to create an object. we create object without exposing the creation logic to the client and refer to it using a common interface.
+b) Abstract Factory: It work around a super-factory which creates other factories. This factory is also called as factory of factories.An interface is responsible for                       creating a factory of related objects without explicitly specifying their classes. Each generated factory can give the objects as per the Factory                       pattern.
+c) Builder Pattern:  Builds a complex object using simple objects and using a step by step approach.    
+d) Bridge Pattern:   Bridge pattern decouples implementation class and abstract class by providing a bridge structure between them.
+		      Shape redCircle = new Circle(100,100, 10, new RedCircle());
+e) Decorator:        Decorator pattern allows a user to add a new functionality to an existing object without altering its structure.
+f) Command Pattern:  A request is wrapped under an object as command and passed to invoker object. Invoker object looks for the appropriate object which can handle                          this command and passes the command to the corresponding object which executes the command. 
+g) Observer Pattern: Observer pattern is used when there is one-to-many relationship between objects such as if one object is modified, its depenedent objects are to                        be notified automatically. 
+h) Visitor Pattern:  Element object has to accept the visitor object so that visitor object handles the operation on the element object.
+i) Proxy Pattern:    A class represents functionality of another class. 
+j) Facade Pattern:   This pattern adds an interface to existing system to hide its complexities.
+k) Business Delegate: This pattern is used to decouple presentation tier and business tier.
+
+
+2. Design Patterns
+A.   Creational:- Design patterns that deal with object creation mechanisms, trying to create objects in a manner suitable to the situation.
+		  Ex: Singleton, Factory, Abstract Factory, Builder, Prototype
+     Behavioral:- Design patterns that identify common communication patterns among objects and realize these patterns.
+		  Ex: Template, Mediator, Chain of Responsibility, Observer, Strategy, Command, Visitor, iterator
+     Structural:- Design patterns that ease the design by identifying a simple way to realize relationships among entities.
+		  Ex: Adapter, Composite, Proxy, Flyweight, Facade, Bridge, Decorator
+
+
+SOAP FAQ
+---------
+
+1. How to implement username/password in a webservices client program?
+A. bindingProvider.getContext().put(WSSecurityContext.CREDENTIAL_PROVIDER_LIST,Collections.singletonList(new ClientUNTCredentialProvider(USERNAME.getBytes(),PWD.getBytes()))); 
+
+
+2. How are exceptions handled in webservices?
+A. The exceptions are declared as Faults in WSDL. It is enclosed inside the PortType tag.
+
+3. RPC Vs Document
+Document: The content of <soap:Body> is specified by XML Schema defined in the <wsdl:type> section.
+RPC: The structure of an RPC style <soap:Body> element may contain only one element that is named after the operation, and all parameters must be represented as sub-elements of this wrapper element.
+
+4. literal/Encoding in wsdl
+literal: use="literal" means that the type definitions literally follow an XML schema definition.
+encoding: use="encoded" refers to the representation of application data in XML. The rules to encode and interpret a SOAP body are in a URL specified by the encodingStyle attribute.
+
+5. Differnt Tags in WSDL
+a) Types: Uses the XML schema language to declare complex data types and elements that are used elsewhere in WSDL document.
+b) Messages: The message elements describe the input and output parameters.
+c) Port Type: The port type and operation elements describes webservices interface and define its methods. These are analogus to java interface and its method declarations.
+d) Binding: Assigns port type and operation elements to particular protocol and encoding style.
+e) Service: Assigns internet address to specific binding.
+
+6. JAX-RPC
+A. JAX-RPC is designed as a java API for web services, so that J2EE applications can interoperate with non-java applications. It defines the standard programming model for both webservice clients and endpoints in J2EE.
+
+7. What is JAX-RPC Service Endpoint(JSE) ?
+A. To create a JSE we need to define and endpoint Interface and an implementation class. The Endpoint interface defines the webservice operations that the JSE will support in the form of a Java method. The implementation class implements these endpoint methods.
+
+8. SOAP Fault
+A. The soap:fault element specifies the contents of the soap fault details element. The fault message MUST have a single part. The use, encodingStyle and namespace attributes are all used in the same way as with soap:body, only style="document" is assumed since faults do not contain parameters.
+
+9.  SOAP web service client
+A. 
+	URL wsdlURL = new URL("http://localhost:8888/ws/person?wsdl");
+	//creating QName using targetNamespace and name
+	QName qname = new QName("http://service.jaxws.journaldev.com/", "PersonServiceImplService");
+	Service service = Service.create(wsdlURL, qname);
+	PersonService ps = service.getPort(PersonService.class);
+	System.out.println("Add Person Status="+ps.addPerson(p1));
+
+10.  Web services security.
+A. (i)   Transport-level security: HTTP Basic/Digest and SSL
+   (ii)  Message level security  : WS-Security, XML digital signature, XML Encryption,XKMS (XML Key Management Specification), 
+	                           XACML (eXtensible Access Control Markup Language), SAML (Secure Assertion Markup Language), ebXML Message Service
+   (iii) Access control security : A security role is a privilege granted to users or groups based on specific conditions.
+
+
+11. Basic Authentication (Application level authentication in JAX-WS)
+A. One of the common way to handle authentication in JAX-WS is client provides “username” and “password”, attached it in SOAP request header and send to server.
+   The userName and password are encoded with Base64 and decode on the server side with Base64.
+   server parse the SOAP document and retrieve the provided “username” and “password” from request header and do validation from database, or whatever method prefer.
+
+   Client side:
+	Map<String, Object> req_ctx = ((BindingProvider)port).getRequestContext();
+	req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, WS_URL);
+
+	Map<String, List<String>> headers = new HashMap<String, List<String>>();
+	headers.put("Username", Collections.singletonList("mkyong"));
+	headers.put("Password", Collections.singletonList("password"));
+	req_ctx.put(MessageContext.HTTP_REQUEST_HEADERS, headers);
+
+   Server side:
+	@Resource
+    	WebServiceContext wsctx;
+
+	 @Override
+    	public String method() {
+
+      	 MessageContext mctx = wsctx.getMessageContext();
+
+	 //get detail from request headers
+       	 Map http_headers = (Map) mctx.get(MessageContext.HTTP_REQUEST_HEADERS);
+       	 List userList = (List) http_headers.get("Username");
+       	 List passList = (List) http_headers.get("Password");
+   	 //...
+	}
+
+12. WS security Username Token authentication.
+A.   With JAX-WS in Java6 you need to attach a SOAPHandler to inject the WSS-Usertoken into the SOAP Header.
+     To add a handler you need something like:
+
+	final Binding binding = ((BindingProvider) servicePort).getBinding();
+	List<Handler> handlerList = binding.getHandlerChain();
+	if (handlerList == null)
+	    handlerList = new ArrayList<Handler>();
+	handlerList.add(new SecurityHandler());
+	binding.setHandlerChain(handlerList); // <- important!
+
+     Then the SecurityHandler class will do the deed. Handlers are general things and get called for both successful messages and for faults, 
+     but perhaps more importantly they get called in both message directions - for the outgoing request and then again for the incoming response. 
+     You only want to handle outgoing messages. So you'll need something like:
+
+	public final class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
+
+	    ...
+
+	    @Override
+    	    public boolean handleMessage(final SOAPMessageContext msgCtx) {
+
+	        // Indicator telling us which direction this message is going in
+        	final Boolean outInd = (Boolean) msgCtx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+	        // Handler must only add security headers to outbound messages
+        	if (outInd.booleanValue()) {
+           	 try {
+	                // Get the SOAP Envelope
+                	final SOAPEnvelope envelope = msgCtx.getMessage().getSOAPPart().getEnvelope();
+
+	                // Header may or may not exist yet
+        	        SOAPHeader header = envelope.getHeader();
+                	if (header == null)
+                    		header = envelope.addHeader();
+
+        	        // Add WSS Usertoken Element Tree 
+	                final SOAPElement security = header.addChildElement("Security", "wsse",
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+                	final SOAPElement userToken = security.addChildElement("UsernameToken", "wsse");
+                	userToken.addChildElement("Username", "wsse").addTextNode("MyWSSUsername");
+                	userToken.addChildElement("Password", "wsse").addTextNode("MyWSSPassword");
+
+	            } catch (final Exception e) {
+        	        LOG.error(e);
+                	return false;
+            	}
+           }
+        	return true;
+   	 }
+
+    ...
+
+EX: 
+	<soap:Envelope xmlns:S="http://www.w3.org/2001/12/soap-envelope"
+	 xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/xx/secext">
+ 	<soap:Header>
+ 	<wsse:Security>
+ 		<wsse:UsernameToken
+ 		xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/xx/secext"
+ 		xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/xx/utility">
+ 			<wsse:Username> NNK </wsse:Username>
+ 			<wsse:Password Type="wsse:PasswordText">krishna</wsse:Password>
+		 	<wsse:Nonce> EFD89F06CCB28C89 </wsse:Nonce>
+			<wsu:Created> 2001-10-13T09:00:00Z </wsu:Created>
+	 	</wsse:UsernameToken>
+	 </wsse:Security>
+	 </soap:Header>
+	 </soap:Envelope>
+
+
+Restful FAQ
+------------
+
+1. Idempotency in Restful Web services
+A. An idempotent HTTP method is a HTTP method that can be called many times without different outcomes. PUT/GET/DELETE are idempotent. POST is  not idempotent.
+
+2. SOAP Vs REST
+A. SOAP is a protocol. REST is an architectural style.
+   SOAP uses services interfaces to expose the business logic. REST uses URI to expose business logic.
+   SOAP defines its own security. REST inherits security measures from the underlying Transport.
+   SOAP permits XML data format only.  REST permits Plain text, HTML, XML, JSON etc.
+
+3. Controller vs RestController
+A.  @RestController = @Controller  +  @ResponseBody
+
+4. PUT Vs POST
+A. POST means "create new" as in "Here is the input for creating a user, create it for me". PUT means "insert, replace if already exists" as in "Here is the data for user 5". 
+
+POST creates a child resource, so POST to /items creates a resources that lives under the /items resource. Eg. /items/1. Sending the same post packet twice will create two resources. PUT is for creating or replacing a resource at a URL known by the client.
+
+PUT is only a candidate for CREATE where the client already knows the url before the resource is created.
+
+5. Exception Mapper in REST
+A. ExceptionMapper is a contract for a provider that maps Java exceptions to Response object. An implementation of this interface must be annotated with @Provider to work correctly.
+
+6. ContextResolver<ObjectMapper> in Restful service.
+A. To redefine the default Jackson behavior and to fine-tune how your JSON data structures look like. 
+   https://www.nabisoft.com/tutorials/java-ee/producing-and-consuming-json-or-xml-in-java-rest-services-with-jersey-and-jackson
+
+7. How many ways to create RESTful client ?
+A.  Client client = Client.create();
+    client.resource(url).accept("application/json").get(ClientResponse.class).getEntity(String.class); // GET
+    client.resource(url).type("application/json").post(ClientResponse.class,input).getEntity(String.class); // POST  'input is json string'
+  
+    URL url = new URL("http://localhost:8080/RESTfulExample/json/product/get");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("GET");
+    conn.setRequestProperty("Accept", "application/json");
+    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream());
+
+    conn.setRequestMethod("POST");
+    conn.setRequestProperty("Content-Type", "application/json")
+    String input = "{\"qty\":100,\"name\":\"iPad 4\"}";
+    OutputStream os = conn.getOutputStream();
+    os.write(input.getBytes());
+    os.flush();
+    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream());
+
+
+RESTFUL service authentication ref : https://javapapers.com/web-service/restful-services-http-basic-authentication/
+
+
+Hibernate FAQ
+--------------
+
+1. What are the object states in Hiberanate(Life cycle) ?
+A. Transient, Persistent, Detached.
+
+2. How to save a collection in Hibernate ?
+A. Use the annotation @ElementCollection which stores the collection in another table.
+
+3. What are the types of primary key generators ?
+A. AUTO, SEQUENCE, IDENTITY, TABLE
+
+4. How to create a candidate key ?
+A. Use a seperate class having all columns with @Embeddable. Annotate the column as @EmbeddedId
+
+5. Inheritance Types in Hibernate?
+(a) SINGLE_TYPE : Provide @DiscriminatorColumn in parent and @DiscriminatorValue in the child classes
+(b) TABLE_PER_CLASS: Creates table per each class. Each child class also inherits the properties from the parent and creates as columns in the child tables.
+(C) JOINED: Creates tables for parent, children.  The data that is inhertied from parent table remains with parent. It is more normalized. To pull up full data we need to make a join with parent and child.
+
+6. How to call stored procedure in Hibernate ?
+A.  (1) session.createSQLQuery("CALL GetStocks(:stockCode)").addEntity(Stock.class).setParameter("stockCode", "7277");
+    (2) @NamedNativeQueries({@NamedNativeQuery(name = "callStockStoreProcedure",query = "CALL GetStocks(:stockCode)",resultClass = Stock.class)})
+    (3) <sql-query name="callStockStoreProcedure"><return alias="stock" class="com.mkyong.common.Stock"/><![CDATA[CALL GetStocks(:stockCode)]]></sql-query>
+	Point (3) is in <hibernate-mapping>
+
+7. Hibernate Proxy
+A. Its used to hide lazy-loading association initialization. It is generated at runtime and extends original entity. The proxy doesnot issue any SQL statement. It simply triggers a InitializeCollectionEvent, which is handled by the associated listener, that knows which initialization query to issue(depends on fetch plan). List, Set, Map are substitued with PersistentList, PersistentSet, PersistentMap. These classes are responsible for fetching the uninitialized collection.
+
+8. How to create multiple tables using one POJO
+A. To map two identical tables onto one entity class, you need to use the entity-name property of Hibernate. 
+
+name="com.mypackage.Myobject", table="my_table",    entity-name="primaryMyojbect"
+name="com.mypackage.Myobject", table="my_table_bk", entity-name="backupMyojbect"
+
+Myobject myObject = new Myobject();
+session.save("primaryMyojbect", myObject);
+session.save("backupMyojbect", myObject);
+
+9. Concurrency in Hibernate
+A. We have three choices (a) Last commit wins (b) First commit wins (c) Merge conflicting updates. These are accomplished by using Application version checking/Extended session and automatic versioning/Detached objects and automatic versioning.
+
+10. Criteria API in hibernate
+A. Criteria Queries are used for dynamic queries. It is much easier to add some ordering dynamically or leave some parts (e.g. restrictions) out depending on some parameter.
+
+11. Caching in Hibernate
+A. The first-level cache is the Session cache and is a mandatory cache through which all requests must pass. The Session object keeps an object under its own power before committing it to the database. 
+	Second level cache is an optional cache and first-level cache will always be consulted before any attempt is made to locate an object in the second-level cache. The second-level cache can be configured on a per-class and per-collection basis and mainly responsible for caching objects across sessions.
+
+The Hibernate second-level cache is set up in two steps.
+In hibernate.cfg.xml add the below lines
+<property name="cache.use_second_level_cache">true</property>
+<property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
+
+In the Entity class use the below
+@Cacheable
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)//READ_WRITE, READ_ONLY, NONSTRICT_READ_WRITE, TRANSACTIONAL
+
+Query Cache in Hibernate
+In hibernate.cfg.xml add the below line
+<property name="cache.use_query_cache">true</property>
+
+In the Entity class add the below line after creating the query.
+query.setCacheable(true)// add this line for every query. Then only the query is searched in second level cache.
+
+
+12.Update Vs Merge in hibernate
+A.  Both update() and merge() methods are used to change the state of an object. 
+    
+    When we call update() method on any object, it intern checks,  if currently updating object is already there in session cache then it throws an exception called        NonUniqueObjectException, otherwise it will update the object.
+   
+    If we call merge() method, then it verifies whether the same object has existed in the session cache or not. If the object has existed in the cache then the     current changes are copied in to the cache, otherwise, it will load the values to cache.
+
+
+13. Hibernate relationships 
+A.
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "stock")
+	pub lic List<StockDailyRecord> getStockDailyRecords() {
+		return this.stockDailyRecords;
+	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "STOCK_ID", nullable = false)
+	public Stock getStock() {
+		return this.stock;
+	}
+
+14. Can we create entity as final ?
+A.  Hibernate uses the proxy pattern for performance improvement during lazy association, by making an entity final, Hibernate will no longer be able to use a proxy as     Java doesn't allow the final class to be extended.
+
+15. Should we have a default constructor mandatory ?
+A.  All persistent classes must have a default constructor (which can be non-public) so that Hibernate can instantiate them using Constructor. It is recommended         that you have a default constructor with at least package visibility for runtime proxy generation in Hibernate.
+
+16. Get-next-sequence-value-from-database-using-hibernate 
+A.  (1) To get the new id, all you have to do is flush the entity manager in the getNext() method
+    (2) SQLQuery query = session.createSQLQuery("select nextval('SEQUENCE_NAME')");
+        Long nextValue = ((BigInteger)query.uniqueResult()).longValue();
+        //nextValue;
+        query = session.createSQLQuery("select setval('SEQUENCE_NAME'," + nextValue + ")");
+
+17. How to create entity without id in hibernate
+A.  The best solution in this case is normally to add a generated id to the object and table.
+    If your table truly has no unique columns, then use all of the columns as the id. 
+
+
+Spring FAQ
+----------
+
+1. what is Dependency Injection
+A. Dependency injection is a pattern used to create instances of objects that other objects rely on without knowing at compile time which class will be used to provide    that functionality. 
+   
+2.What is IOC ?
+A. Classes should configure its dependencies from the outside.
+
+3. setter vs constructor injection in spring.
+A. Constructor injection is used when the class cannot function without the dependent class.
+Property injection is used when the class can function without the dependent class.
+
+
+4. What is Autowiring ?
+A. The process of injecting object dependencies.
+
+5. Spring annotations
+A. @Autowired will be wired by type. If more than one bean has same type are declared in the container, it does not know which beans to use to inject. Use @Qualifier together with @Autowired to clarify which beans to be actually wired by specifying the bean name(wired by name).
+
+@Resource is wired by name too.  If @Autowired is used together with @Qualifier, it is same as @Resource.
+
+@Autowired
+@Qualifier("alpha")
+
+@Resource(name="alpha")
+
+6. BeanFactory, ApplicationContext, ConfigurableApplicationContext
+A. (1) BeanFactory: To instantiate POJOs, DI
+   (2) ApplicationContext: i18N Annotations, Proxies other features
+   (3) ConfigurableApplicationContext: Bean life cycle method support, Event Handling(IOC start, stop, refresh, close).
+
+   ApplicationContext: It loads spring beans configured in spring configuration file, and manages the life cycle of the spring bean as and WHEN CONTAINER STARTS.                              It won't wait until getBean("springbeanref") is called.
+
+   BeanFactory: It loads spring beans configured in spring configuration file,manages the life cycle of the spring bean when we call the getBean("springbeanref").  
+                So when we call the getBean("springbeanref") at that time the spring bean life cycle starts.
+
+7. <context:annotation-config />
+A. This will activate @Autowired, @Resource, @Required, @PostConstruct.,,
+
+8. Singleton beans with prototype-bean dependencies
+A.  If you dependency-inject a prototype-scoped bean into a singleton-scoped bean, The prototype instance is the sole(only ONE) instance that is ever supplied to the singleton-scoped bean. If you need to inject prototype then the bean should have the below annotation
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS )
+
+
+9. Spring Security
+A.  In web.xml, configure the filter.
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+    In Spring-security.xml use below:
+
+ 	<http auto-config="true">
+		<intercept-url pattern="/admin**" access="ROLE_ADMIN" />
+		<intercept-url pattern="/dba**" access="ROLE_ADMIN,ROLE_DBA" />
+	</http>
+
+	<authentication-manager>
+	  <authentication-provider>
+	    <user-service>
+		<user name="mkyong" password="123456" authorities="ROLE_USER" />
+		<user name="admin" password="123456" authorities="ROLE_ADMIN" />
+		<user name="dba" password="123456" authorities="ROLE_DBA" />
+	    </user-service>
+	  </authentication-provider>
+	</authentication-manager>
+
+
+10. How to use static variables in Spring DI ?
+A. Use 'MethodInvokingFactoryBean' class. It contains two set methods. setArguments(Object[] args), setStaticMethod(String staticMethod).
+	<bean class="MethodInvokingFactoryBean">
+		<property name="staticMethod" value="car.setCarname">
+		<property name="arguments">
+			<list>
+			    <value>Audi</value>
+			</list>
+		</property>
+	</bean>
+
+
+11. How to use singleton, factory methods,pre-defined classes in Spring ?
+A.   Calender c = Calender.getInstance();
+	<bean id="c" class="java.util.Calender" factory-method="getInstance" />
+
+     Logger l = LoggingFactory.getLogger(this);
+	<bean id="lf" class="LoggingFactory"/>
+	<bean id="l" factory-bean="lf" factory-method="getLogger" />
+
+12. How to implement custom Bean life cycle methods
+A. (1) Use init-method, destroy-method attributes in the bean declaration (XML-based configuration) (OR)
+   (2) Use @postconstruct, @predestroy annotations in the bean class
+   (3) create bean by implementing InitializingBean, DisposableBean interfaces 
+NOTE: should use ConfigurableApplicationContext in these scenarios. 
+
+13. How to implement a new method without changing the existing method implementation in spring ?
+A. Create a class implementing MethodReplacer and by over-riding reimplemnt() method. We can replace the method execution by this new class. In the configuration, we need to use the <replaced-method name="callInt" replacer="nc"/> within the <bean> tag. "nc" is the bean reference of the class created above.
+
+14. How to load property file in spring ?
+A. PropertyPlaceholderConfigurer is the bean we need to configure to load property file. Should pass the location as param to the property.
+
+
+15. Spring config for webservices in web.xml
+com.sun.jersey.spi.spring.container.servlet.SpringServlet (For REST)
+com.sun.xml.ws.transport.http.servlet.WSSpringServlet     (For SOAP)
+
+16. Consuming SOAP Webservices in spring
+A. we use webServiceTemplate.marshalSendAndReceive(request);
+
+    <bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory" />
+
+    <bean id="marshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+        <property name="contextPath" value="com.yourcomany.model" />
+    </bean>
+
+    <bean id="webServiceTemplate" class="org.springframework.ws.client.core.WebServiceTemplate">
+        <constructor-arg ref="messageFactory" />
+        <property name="marshaller" ref="marshaller"></property>
+        <property name="unmarshaller" ref="marshaller"></property>
+        <property name="messageSender">
+            <bean
+                class="org.springframework.ws.transport.http.HttpComponentsMessageSender" />
+        </property>
+        <property name="defaultUri" value="http://<hostname>:<portnumber>/sample/hello" />
+    </bean>
+
+17.  Consuming Restful Webservices in spring
+A.  The RestTemplate is the core class for client-side access to Spring RESTful web services. It communicates HTTP server using RESTful constraints. It is very similar to other template classes in the Spring like JdbcTemplate and HibernateTemplate etc. In Spring, RestTemplate provides higher level implementation of corresponding HTTP methods such as GET, POST, PUT, DELETE, HEAD etc. It provides the methods to communicate by using these HTTP methods with URI template, URI param, request object and response type as arguments.
+
+GET: 
+	final String uri = "http://localhost:8080/springrestexample/employees/{id}";
+        Map<String, String> params = new HashMap<String, String>();
+    	params.put("id", "1");
+     	RestTemplate restTemplate = new RestTemplate();
+	EmployeeVO result = restTemplate.getForObject(uri, EmployeeVO.class, params);
+
+POST: 
+	final String uri = "http://localhost:8080/springrestexample/employees";
+        EmployeeVO newEmployee = new EmployeeVO(-1, "Adam", "Gilly", "test@email.com");
+        RestTemplate restTemplate = new RestTemplate();
+        EmployeeVO result = restTemplate.postForObject( uri, newEmployee, EmployeeVO.class);
+PUT: 
+	restTemplate.put (uri, updatedEmployee, params);
+DELETE: 
+	restTemplate.delete (uri, params);
+
+18. Mockito spring.
+A. 
+	@Mock
+	TicketDAO dao;
+	
+	@Before
+	public void initMocks(){
+		MockitoAnnotations.initMocks(this);
+	}
+
+	when(dao.getTickets()).thenReturn(tickets);
+
+
+19. Spring Junit
+@Configuration
+@Component-scan(basePackages = {"com.java.Service","com.java.dao"})
+public class SpringContext{}
+
+
+@RunWith(SpringJunit4ClassRunner.class)
+@contextConfiguration(classes = SpringContext.class)
+
+@ContextConfiguration(locations={"/BusinessApplicationContext.xml"})
+
+
+Spring Transactions:
+--------------------
+
+1. Spring @Transactional internal working
+A. By using @Transactional, many important aspects such as transaction propagation are handled automatically. In this case if another transactional method is called by    businessLogic(), that method will have the option of joining the ongoing transaction.
+   The Transactional Aspect is an 'around' aspect that gets called both before and after the annotated business method. The concrete class for implementing the aspect    is TransactionInterceptor.
+
+   The Transactional Aspect has two main responsibilities:
+
+   (a) At the 'before' moment, the aspect provides a hook point for determining if the business method about to be called should run in the scope of an ongoing               database transaction, or if a new separate transaction should be started.
+   (b) At the 'after' moment, the aspect needs to decide if the transaction should be committed, rolled back or left running.
+       
+       At the 'before' moment the Transactional Aspect itself does not contain any decision logic, the decision to start a new transaction if needed is delegated to           the Transaction Manager.
+
+   The Transaction Manager: The transaction manager needs to provide an answer to two questions:
+                            should a new Entity Manager be created?	
+                            should a new database transaction be started?
+			    This needs to be decided at the moment the Transactional Aspect 'before' logic is called. The transaction manager will decide based on:
+			      (a) the fact that one transaction is already ongoing or not
+			      (b) the propagation attribute of the transactional method (for example REQUIRES_NEW always starts a new transaction)
+			    If the transaction manager decides to create a new transaction, then it will:
+			      (a) create a new entity manager
+			      (b) bind the entity manager to the current thread
+			      (c) grab a connection from the DB connection pool
+			      (d) bind the connection to the current thread
+			    The entity manager and the connection are both bound to the current thread using ThreadLocal variables.
+
+ 		         They are stored in the thread while the transaction is running, and it's up to the Transaction Manager to clean them up when no longer needed.
+
+			  Any parts of the program that need the current entity manager or connection can retrieve them from the thread. One program component that 			  does exactly that is the EntityManager proxy.
+
+    The EntityManager proxy: When the business method calls for entityManager.persist(), this call is not invokes the EntityManager proxy, which retrieves the current  			     entity manager from the thread, where the Transaction Manager put it.
+    Refer: https://dzone.com/articles/how-does-spring-transactional
+	   https://www.youtube.com/watch?v=iDRPHQ52pns
+
+
+2. Distributed Transactions in spring.
+A. If the transactions has to span across different databases(like oracle, mysql) we need to use the JPATransactionManager. These type of transactions are called XA transactions or Distributed transactions.   We need to mention the propogation type and isolation levels based on the requirement.
+<tx:annotation-config transaction-manager="jpaTransactionManager"/>
+
+The XA interfaces enable the resource managers to join transactions, to perform 2PC (two phase commit) and to recover in-doubt transactions following a failure.
+
+
+Spring MVC:
+-----------
+
+1. Stereotypes(why and use) in Spring MVC
+A. Spring automatically scans and identifies all the classes that are annotated with @Controller, @Service, @Repository, @Component and registers the Bean definitions with ApplicationContext. The annotations are 'parsed' with reflection, the xml with an xml parser. These annotations can clearly demark the application layers.
+
+2. Annotations for Exception Handling in spring MVC
+A. @ControllerAdvice - Global Exception Handler. We have to define <mvc:annotation-driven/> to load @ControllerAdvice classes. Also we can globalize @InitBinder,                        @ModelAttribute.
+   @ExceptionHandler - Controller Based exception handler.
+
+3. List of View Resolvers in Spring.
+A. UrlBasedViewResolver, InternalResourceViewResolver, ResourceBundleViewResolver, XmlViewResolver, VelocityViewResolver/FreeMarkerViewResolver, ContentNegotiatingViewResolver, AbstractCachingViewResolver.
+
+4. Handler mappings in spring MVC
+A. (a) BeanNameURLHandlerMapping(Default)[maps bean name(here, bean name is url mapping) to controller names]
+   (b) ControllerClassNameURLHandlerMapping(maps with controller name)
+   (c) SimpleURLHandlerMapping{maps url patterns to bean id(here, id is url mapping)}
+
+5. How many ways to configure spring xml file
+A. (1) by using servlet name {Ex: hello-servlet.xml, where hello=servlet-name}
+   (2) by passing config params(init-params).{can use xml file with different name}
+   (3) by passing context parameters along with listener.
+
+6. What are various controllers in spring mvc ?
+A. (1) Core[controller, AbstractController]
+   (2) view[ParameterizableViewController, URLFileNameController] 
+   (3) ThrowAway Controller[Performs like a command class]
+   (4) MultiActionController
+   (5) CommandControllers[BaseCommandController, AbstractCommandContoller, AbstractFormController,SimpleFormController,AbstractWizardFormController ]
+
+7. When to use Spring forms (form:form) ?
+A. Use Spring forms when you need functionality provided by them: (a) binding to objects (b)configurable field formatting (c) redisplay of values on errors (d) binding of error messages
+
+
+Spring AOP:
+----------
+
+1. what is Pointcut
+A. All the points in execution of your code where advice is to be cut-in. “pointcuts” is used to declare which method is going to intercept.
+    Pointcut are expressions that is matched with join points to determine whether advice needs to be executed or not.
+
+2. What is Joinpoint.
+A. All the places in your code where you can apply advice. Join point always represents a method execution.
+
+3. what is Aspect(interceptor)
+A.  A modularization of a concern that cuts across multiple objects. Transaction management is a good example of a crosscutting concern in J2EE applications.The functionality once intercepted.
+
+4. What is Advice ?
+A. Action taken by an aspect at a particular join point.
+
+5. what is weaving ?
+A. Linking aspects with other application types or objects to create an advised object.
+
+
+Java 8
+------
+
+1. What is Closeable interface ?
+A. Implementing AutoCloseable (or Closeable) allows a class to be used as a resource of the try-with-resources construct introduced in Java 7, which allows closing    such resources automatically at the end of a block, without having to add a finally block which closes the resource explicitely.
+
+2. What is method reference in java 8 
+A. Method reference is used to refer method of functional interface. It is compact and easy form of lambda expression. 
+   ContainingClass::staticMethodName  
+
+3. What is Functional interface ?
+A. An interface which has only one abstract method is called functional interface. @FunctionalInterface is used to declaring the same.
+
+4. Wha is Lambda expression ?
+A. Lambda expression provides implementation for functional interface.
+   Syntax: (argument-list)-> {body}
+
+5. Optional class ?
+A. It is a public final class and used to deal with NullPointerException in Java application.  It provides methods which are used to check the presence of value for    particular variable.
+
+6. Pair
+A. A pair provides a convenient way of associating a simple key to value.  Package for using Pair is javafx.util.Pair
+	Pair<Integer, String> pair = new Pair<>(100, "hello");    
+	Integer key = pair.getKey();        //100
+	String value = pair.getValue();     //hello
+ 	pair.equals(new Pair<>(100, "howtodoinjava.com")); //false
+
+7. Sort list of objects by multiple fields
+A.      Comparator<Employee> compareByName = Comparator
+                                                .comparing(Employee::getFirstName)
+                                                .thenComparing(Employee::getLastName);
+         
+        Collections.sort(employees, compareByName);
+
+8.  HashMap performance Improvement Changes in Java 8
+A.  Java 8 hash elements use balanced trees instead of linked lists after a certain threshold is reached. The hash will change from using a linked list to a balanced     tree. These changes ensure the performance of O(log(n)) in worst case scenarios and O(1) with proper hashCode().
+
+9.  FlatMap 
+A.  flatMap() converts a stream of collections into a single “flat” stream. It will “flatten” it out into a single-dimension.
+
+10. CompletableFuture
+A.  CompletableFuture has different methods for composing, combining, executing asynchronous computation steps and handling errors.
+ 
+11. What is a stream ?
+A.  Stream API is used to process collections of objects. A stream is a sequence of objects that supports various methods which can be pipelined to produce the             desired result.
+
+12.  Can we collect two lists from Java 8 streams?
+A.   List<String> input = Arrays.asList("one", "two", "three", "four", "five");
+     Map<Boolean, List<String>> map = input.collect(Collectors.partitioningBy(s -> s.length() == 3));
+     Map<Boolean, Long> map = input.collect(Collectors.partitioningBy(s -> s.length() == 3), Collectors.counting());// returns {false=3, true=7}
+     System.out.println(map); // {false=[three, four, five], true=[one, two]} 
+     
+     Collectors.partitioningBy produces always two records in the resulting map irrespective of the existence of valid or not-valid values.
+
+13. Collectors.partitioningBy 
+A.  The partitionBy() method can be used to partition the result of Stream in two parts, e.g. pass or fail.
+    Read more: https://www.java67.com/2018/11/10-examples-of-collectors-in-java-8.html#ixzz6WDom8uMm
+
+14. GroupingBy
+A.  Used for grouping objects by some property and storing results in a Map instance.
+    Map<String, List<String>> countryToLocale = streamOfLocales.collect(Collectors.groupingBy(Locale::getCountry));
+
+Microservices
+---------------
+1.  Disadvantages or challenges of Microservices
+A.  Bounded context, configuration mgmt, visibility, pack of cards
+
+2.  Advantages of Microservices
+A.  Adapt new technologies and processes, dynamic scaling, Faster release cycles
+
+3.  API Gateway advantages.
+A.  (a) Single point of entry for any microservice call
+    (b) Work as a proxy service to route a request to the concerned microservice, abstracting the producer details
+    (c) It can fan out a request to multiple services and aggregate the results to send back to the consumer.
+    (d) It can also convert the protocol request (e.g. AMQP) to another protocol (e.g. HTTP) and vice versa so that the producer and consumer can handle it.
+    (e) It can also offload the authentication/authorization responsibility of the microservice.
+
+4.  Aggregator Pattern
+A.  Aggregates the data from different services and then send the final response to the consumer. 
+
+5.  Microservices Design Patterns
+A. (1) Decomposition Patterns: Decompose by Business Capability, by Subdomain, Strangler Pattern
+   (2) Integration Patterns: API Gateway Pattern, Aggregator Pattern, Client-Side UI Composition Pattern
+   (3) Database Patterns: Database per Service, Shared Database per Service, Command Query Responsibility Segregation (CQRS), Saga Pattern
+   (4) Observability Patterns: Log Aggregation, Performance Metrics, Distributed Tracing, Health Check
+   (5) Cross-Cutting Concern Patterns: External Configuration, Service Discovery Pattern, Circuit Breaker Pattern, Blue-Green Deployment Pattern
+       https://dzone.com/articles/design-patterns-for-microservices
+
+6.  Saga Pattern
+A.  Saga represents a high-level business process that consists of several sub requests, which each update data within a single service. Each request has a               compensating request that is executed when the request fails. It can be implemented in two ways:
+    Choreography — When there is no central coordination, each service produces and listens to another service’s events and decides if an action should be taken.
+    Orchestration — An orchestrator (object) takes responsibility for a saga’s decision making and sequencing business logic.
+
+7.  Command Query Responsibility Segregation (CQRS)
+A.  CQRS suggests splitting the application into two parts — the command side and the query side. The command side handles the Create, Update, and Delete requests. The     query side handles the query part by using the materialized views. The event sourcing pattern is generally used along with it to create events for any data change.     Materialized views are kept updated by subscribing to the stream of events.
+
+
+Spring Boot FAQ
+---------------
+
+1. Spring Boot
+
+    - Spring Boot makes it easy to create stand-alone, production-grade Spring-based Applications that you can run.
+    - Spring Boot looks at a) Frameworks available on the CLASSPATH b) Existing configuration for the application. Based on these, Spring Boot provides basic       		configuration needed to configure the application with these frameworks. This is called Auto Configuration.
+    - Spring Boot Starters are a set of convenient dependency descriptors that you can include in your application.
+    - Spring Boot solves this problem through a combination of Auto Configuration and Starter Projects. Spring Boot also provide a few non functional features to make 	        building production ready applications faster.
+    - Actuator is Used for advanced features like monitoring & tracing to your application out of the box.
+
+2. How to convert Jar to War ?
+A. change the packaging to 'war' and extend SpringBootServletInitializer in main class
+
+3. How to read a list from a property file
+A. comma seperated values in property and read with @Value and use 'split' on the string.
+
+4. How to populate the values from properties file
+A. Use @PropertySource("classpath:xyz.properties") with @Value("{key.value}")
+
+5. How to load profiles at runtime ?
+A. add it vm arguments: --spring.profiles.active=production/dev/qa 
+
+6. How to exclude the classes from auto configuration
+A. @EnableAutoConfiguration(exclude=SecurityAutoConfiguration.class)
+   @SpringBootApplication(exclude=SecurityAutoConfiguration.class)
+
+7. Session Tracking in spring boot.
+A. Add the property:    spring.session.store-type=jdbc
+   Spring Boot will apply a configuration that is equivalent to manually adding @EnableJdbcHttpSession annotation.
+   This creates a Spring Bean named springSessionRepositoryFilter that implements a SessionRepositoryFilter.
+   Another key point is that the filter intercepts every HttpServletRequest and wraps it into a SessionRepositoryRequestWrapper.
+   It also calls the commitSession method to persist the session information.
