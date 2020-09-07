@@ -649,18 +649,23 @@ A.	(a) QUery to retrieve the name, manager name from emp table; emp table contai
 	(b) Query to retrieve the count of employees for a department from emp, dept tables.	
 	 select b.dname name, count(a.empid) total from emp a, DEPT b where a.deptno=b.deptno group by b.dname
 
-6. SQL query to retrieve even/odd data
+6.  SQL query to retrieve even/odd data
 A.  select * from (select empno, ename, sal, rownum rn from emp order by empno) where  mod (rn, 2) = 0; // for odd, mod(rn, 2) <> 0
 
-7. How to identify duplicates using SQL
-A. select empid from empnew group by empid having COUNT(*)>1
+7.  How to identify duplicates using SQL
+A.  select empid from empnew group by empid having COUNT(*)>1
 
 8. Statement Vs Prepared Statement
-A. Statement is static, prepared is a dynamic. If you don't use a prepared statement, the database server will have to parse, and compute an execution plan for the statement each time you run it. If you need to run the same statement multiple times (with different parameters) then its worth preparing the statement once and reusing that prepared statement. ie., SQL will validate the query only once, whereas if you just use a statement it will validate the query each time.
-Prepared statements will protect from SQL injections.
+A. Statement is static, prepared is a dynamic. If you don't use a prepared statement, the database server will have to parse, and compute an execution plan for the    statement each time you run it. If you need to run the same statement multiple times (with different parameters) then its worth preparing the statement once and    reusing that prepared statement. ie., SQL will validate the query only once, whereas if you just use a statement it will validate the query each time.
+   Prepared statements will protect from SQL injections.
 
-9. Find top 5 departments having highest salary 
-A.  Select * From (SELECT A.*, (SELECT COUNT(DISTINCT(B.salary)) FROM Employee B WHERE B.salary >= A.salary and  A.departmentID=B.departmentID) as Rank FROM  Employee A) Emp  Where Emp.Rank <=5
+9.  List of Indexes in SQL
+A.  Normal, Unique, Bitmap, Composite, B-Tree, Function based, Clustered, Non Clustered.
+
+10. Find top 5 departments having highest salary 
+A.  Select * From (SELECT A.*, (SELECT COUNT(DISTINCT(B.salary)) FROM Employee B WHERE B.salary >= A.salary and  A.departmentID=B.departmentID) as Rank FROM  Employee     A) Emp  Where Emp.Rank <=5
+
+
 
 Design Patterns:
 ---------------
@@ -678,6 +683,7 @@ h) Visitor Pattern:  Element object has to accept the visitor object so that vis
 i) Proxy Pattern:    A class represents functionality of another class. 
 j) Facade Pattern:   This pattern adds an interface to existing system to hide its complexities.
 k) Business Delegate: This pattern is used to decouple presentation tier and business tier.
+l) Strategy Pattern: Define a family of algorithms, encapsulate each one, and make them interchangable. let the algorithms vary independently from clients that use it. 
 
 
 2. Design Patterns
@@ -1255,8 +1261,7 @@ Spring AOP:
 ----------
 
 1. what is Pointcut
-A. All the points in execution of your code where advice is to be cut-in. “pointcuts” is used to declare which method is going to intercept.
-    Pointcut are expressions that is matched with join points to determine whether advice needs to be executed or not.
+A. An expression to identify joinpoints. All the points in execution of your code where advice is to be cut-in. “pointcuts” is used to declare which method is going to    intercept. Pointcut are expressions that is matched with join points to determine whether advice needs to be executed or not.
 
 2. What is Joinpoint.
 A. All the places in your code where you can apply advice. Join point always represents a method execution.
@@ -1367,6 +1372,24 @@ A.  Saga represents a high-level business process that consists of several sub r
 7.  Command Query Responsibility Segregation (CQRS)
 A.  CQRS suggests splitting the application into two parts — the command side and the query side. The command side handles the Create, Update, and Delete requests. The     query side handles the query part by using the materialized views. The event sourcing pattern is generally used along with it to create events for any data change.     Materialized views are kept updated by subscribing to the stream of events.
 
+8. 12-factor app
+A. (1) Codebase: One codebase tracked in revision control, many deploys
+   (2) Dependency: Place jar in central repository at one place. Use storage repo like jfrog, nexus for storage of libraries.
+                   Embed server in the artifact.
+   (3) Config: The Configuration and Credentials which are environment dependent and frequently changing, should not be stored as part of code.
+               Store in repository and make it available via use of config server. Or if using PAAS platform like PCF, store it as environment variable.
+               Database details should be provided by external configuration from the config-server.
+   (4) Backing Service: Any helping services like Db, MQ, Cache treated as attached resources. Its a 'plug and play'.
+   (5) Build, Release, Run:  Strictly seperate build and run stages.
+   (6) Processes: Processes should be stateless and share nothing. Execute the app as one or more stateless processes. Dont store state of servies.
+                  If needed to store, use Backing service.
+   (7) Port Binding: Access services through embedded server port. App acts as standalone.
+   (8) Concurrency: Scale out via the process model.
+   (9) Disposibility: Startup and shutdown services should be graceful. Quick start and shutdown. Resilience in case of failure.
+   (10) Dev/Prod Parity: Keep dev, staging and prod as similar as possible. Use Docker image and deploy to different envs.
+   (11) Logs: Treat logs as event streams. Transmit logs to Splunk, elk stack and visualize.
+   (12) Admin Process: Spinning new server, db migration should be part of app, but the process should be isolated.
+
 
 Spring Boot FAQ
 ---------------
@@ -1401,3 +1424,5 @@ A. Add the property:    spring.session.store-type=jdbc
    This creates a Spring Bean named springSessionRepositoryFilter that implements a SessionRepositoryFilter.
    Another key point is that the filter intercepts every HttpServletRequest and wraps it into a SessionRepositoryRequestWrapper.
    It also calls the commitSession method to persist the session information.
+
+
